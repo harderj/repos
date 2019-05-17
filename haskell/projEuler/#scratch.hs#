@@ -1,0 +1,48 @@
+
+-- the very big number in prob3.
+bigNumberProb3 :: Integer
+bigNumberProb3 = 600851475143
+
+biggestPrimeFactor = head . reverse . pfacts
+
+prob3 = biggestPrimeFactor bigNumberProb3
+
+-- short digress from proj. Euler problems
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
+
+digress1 = pfacts . factorial -- hmm not than fun
+
+-- I couldn't make the function returning the n'th prime elegantly
+-- though I thought about it for 10 minutes... :(
+
+-- back to proj. Euler.
+
+palindrome n = show n == (reverse $ show n)
+
+maks = head . reverse . sort
+
+prob4 = maks $ filter palindrome [x*y | x <- [100..999], y <- [100..x]]
+
+mfm (n : []) = n
+mfm (n : ns) = lcm n $ mfm ns
+
+prob5 = mfm [1..20]
+
+sumOfSqs n = sum $ map (\x -> x*x) [1..n]
+
+sqOfSum n = let s = sum [1..n] in s*s
+
+prob6 = (\x -> sqOfSum x - sumOfSqs x) 100
+
+listPrimes 1 = [2]
+listPrimes 2 = [3,2]
+listPrimes n =
+  let l = listPrimes (n-1)
+      h m = if all (\x -> mod m x /= 0) [2..sqrtFloor m]
+            then m else h (m+2)
+  in (h (head l + 2)) : l
+
+sqrtFloor = floor . sqrt . fromIntegral
+
+prob7 = head $ listPrimes 10001

@@ -1,0 +1,16 @@
+
+sortNub [] = []
+sortNub [x] = [x]
+sortNub es = x : help x xs where
+  (x:xs) = sort es
+  help _ [] = []
+  help z (y:ys)
+    = if z==y
+      then help z ys
+      else y : (help y ys)
+
+step1 = [a^b | a <- [2..5], b <- [2..5]]
+
+step2 = sort step1
+
+step3 = sortNub step2

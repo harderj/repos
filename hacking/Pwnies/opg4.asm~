@@ -1,0 +1,18 @@
+;nasm -f elf32 demo.asm
+;ld -melf_i386 -o demo demo.o
+;./demo
+
+[bits 32]
+xor ecx, ecx
+push ecx
+;      0 h s /
+push '-l  '
+push '/ls '
+push '/bin'
+
+;write to fd 1
+xor eax, eax
+mov al, 0xb
+mov ebx, esp
+xor edx, edx
+int 0x80

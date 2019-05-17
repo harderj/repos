@@ -1,0 +1,22 @@
+module PIN where
+
+getPINs :: String -> [String]
+getPINs observed = error "TODO: This is your job, detective
+
+help [] = []
+help (c:cs) = map (:help adjacents)
+
+adjacents c =
+  case c of
+    '1' -> "124"
+    '2' -> "1235"
+    '3' -> "236"
+    '4' -> "1457"
+    '5' -> "24568"
+    '6' -> "3569"
+    '7' -> "478"
+    '8' -> "57890"
+    '9' -> "689"
+    '0' -> "08"
+    _ -> ""
+

@@ -1,0 +1,19 @@
+module Shape (Shape (Rectangle,
+                     Ellipse,
+                     RtTriangle,
+                     Polygon),
+              Radius, Side, Vertex,
+              square, circle, distBetween, area
+             ) where
+
+data Shape = Rectangle Side Side
+           | Ellipse Radius Radius
+           | RtTriangle Side Side
+           | Polygon [Vertex]
+           deriving Show
+
+type Radius = Float
+type Side   = Float
+type Vertex = (Float, Float)
+
+square s = Rectangle s s

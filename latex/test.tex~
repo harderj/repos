@@ -1,0 +1,19 @@
+\documentclass{article}
+
+\usepackage{amssymb}
+\usepackage[ampersand]{easylist}
+\ListProperties(Hide=100, Hang=true, Progressive=3ex, Style*=-- ,
+Style2*=$\bullet$ ,Style3*=$\circ$ ,Style4*=\tiny$\blacksquare$ )
+
+\begin{document}
+
+\begin{easylist}
+& Blah
+& Blah
+&& Blah
+&&& Blah
+&&&& Blah
+&&&&& Blah
+\end{easylist}
+
+\end{document}

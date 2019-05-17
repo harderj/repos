@@ -1,0 +1,14 @@
+-- Jacob Harder 21-03-2014
+-- solution to problem number 10
+-- from projecteuler.net
+
+-- find the sum of all primes below 2 million
+
+sqrtFloor n = floor $ sqrt $ fromIntegral n
+
+prime n = all (\x -> (mod n x /= 0)) [2..sqrtFloor n]
+
+listPrimesBelow n =
+  filter prime [2..(n-1)]
+
+step1 = sum $ listPrimesBelow 2000000

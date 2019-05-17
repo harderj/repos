@@ -1,0 +1,10 @@
+
+dgs :: (Num a, Show a, Read a) => a -> [a]
+dgs = (map (read . (\c -> [c]))) . show
+
+nmb :: (Num a, Show a, Read a) => [a] -> a
+nmb = read . (map (head . show))
+
+factorial n = product [1..n]
+
+condition n = n == (sum $ map factorial $ dgs n)

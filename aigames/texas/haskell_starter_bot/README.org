@@ -1,0 +1,38 @@
+* Haskell Starterbot for Texas Hold 'em
+
+This is a starterbot for the [[https://playground.riddles.io/competitions/texas-hold-%2527em][Texas Hold 'em game on Riddes.io]]
+
+** Overview
+
+*** Main.hs
+
+This file holds the main loop. All IO is here, everything else is
+pure. It parses line after line, keeps a gamestate up to date and
+outputs the moves the bot goes for.
+
+*** Intelligence.hs
+
+This is where the you should start programming. You get the current
+gamestate to evaluate and should return an Action. The default is to
+go always all in, so there is room for improvement.
+
+*** Game/
+
+Here you can find the files that hold the various types, the parsing
+functions and everything to make the bot work. You might find
+~Card.hs~ and ~Hand.hs~ the most useful. The first specifies what a
+card is, the second one should help you to evaluate your hand.
+
+*** Makefile
+
+This is just for your convenience.
+
+- Run ~make pack~ to get a zipfile of your bot, ready for upload at
+  [[https://playground.riddles.io/competitions/texas-hold-%2527em][riddles.io]].
+- Run ~make test~ to run a simple test which makes sure everything
+  compiles and doesn't crash on the first sight of input.
+
+** Improve this starterbot
+
+Improvements are very welcome, especially in the form of mergerequest
+on [[https://gitlab.com/Kaligule/poker_starterbot_haskell][Gitlab]].

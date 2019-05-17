@@ -1,0 +1,7 @@
+
+import System.Timeout
+
+main = do print "first line"
+          throw "first throw"
+          print "second line"
+          

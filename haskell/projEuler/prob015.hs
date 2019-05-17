@@ -1,0 +1,28 @@
+module Main where
+
+main = putStrLn $ show $ map opt [1..20]
+
+funOpt 0 m = 1
+funOpt n 0 = 1
+funOpt 1 m = m + 1
+funOpt n 1 = n + 1
+funOpt n m =
+  if n < m
+  then funOpt m n
+  else if n == m
+       then opt n
+       else funOpt (n-1) m + funOpt n (m-1)
+
+opt 0 = 1
+opt 1 = 2
+opt n = 2 * (funOpt n (n-2) + opt (n-1))
+
+fac 0 = 1
+fac n = n * fac (n - 1)
+
+genSol n m = fac (n + m) `div` (fac n * fac m)
+
+seqn f n = map f [0..n]
+
+sol :: Integer -> Integer
+sol n = genSol n n

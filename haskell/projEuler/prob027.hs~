@@ -1,0 +1,10 @@
+
+
+import Primes
+
+f n b = n^2-79*n+b
+
+g b = length $ takeWhile (\x -> isReally (f x b)) [0..]
+
+isReally n = if n < 1 then False else isPrime n
+

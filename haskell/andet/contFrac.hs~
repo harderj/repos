@@ -1,0 +1,12 @@
+
+main = do putStrs approx
+
+contFrac :: [Double] -> Double
+contFrac [] = 0
+contFrac [x] = x
+contFrac (x:xs) = x + 1 / contFrac xs
+
+approx = take 40 $ map contFrac [[1..n] | n <- [1..30]]
+
+putStrs :: Show a => [a] -> IO ()
+putStrs list = sequence_ $ map (putStr . (++['\n']) . show) list

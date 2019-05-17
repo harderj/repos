@@ -1,0 +1,14 @@
+dist
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+.virthualenv
+.cabal-sandbox
+cabal.sandbox.config
+cabal.config
+*~
+*.cmake
+CMakeFiles
+c.exe

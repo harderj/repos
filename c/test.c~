@@ -1,0 +1,6 @@
+
+#include <GL_CO>//Drawing functions
+void draw(void)
+{
+  //Background color
+  glClearColor(0,1,0,1)

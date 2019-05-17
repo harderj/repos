@@ -1,0 +1,41 @@
+<!--
+This is the html code for front page of the website
+www.jacobharder.dk
+last edit: 2014-06-13
+first edit: 2014-06-13
+-->
+
+<html>
+
+<head>
+  <title>
+    Jacob Harder
+  </title>
+</head>
+
+<body>
+
+  <h2> Jacob Harder </h2> 
+  Welcome to my website.
+  
+  <h2> About </h2>
+  I am a danish student of mathematics at <a href="http://www.ku.dk/english">University of Copenhagen</a>.
+  I currently work for <a href="http://www.mathtutors.dk">MathTutors</a>.
+  <!-- For more information -->
+  <!-- <a href="http://www.jacobharder.dk/cv">here is my cv</a>. -->
+
+  <!-- <h2> Newest news </h2> -->
+  <!-- <h3> 2014-06-13 </h3> -->
+  <!-- This website is up and running! -->
+
+  <h2> Sketches </h2>
+  <ul>
+    <li>
+      <a href="http://www.jacobharder.dk/disks">disks</a>
+      - tiny sketch made in processing java featuring 2D-circles
+    </li>
+  </ul>
+
+</body>
+
+</html>

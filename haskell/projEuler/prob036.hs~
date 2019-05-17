@@ -1,0 +1,10 @@
+
+import Numeric
+
+dgs :: (Num a, Show a, Read a) => a -> [a]
+dgs = (map (read . (\c -> [c]))) . show
+
+nmb :: (Num a, Show a, Read a) => [a] -> a
+nmb = read . (map (head . show))
+
+base2 n = [

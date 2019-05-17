@@ -1,0 +1,92 @@
+
+-- import Data.Function
+import Data.List
+import Data.Numbers.Primes
+
+-- Problem 1
+
+twoargs f g a b = f (g a b)
+
+divides = twoargs (0 ==) (flip mod)
+
+problem1 = sum [x | x <- [0 .. 999], divides 3 x || divides 5 x]
+
+-- Problem 2
+
+-- fib1 :: Integral
+fib1 0 = 0
+fib1 1 = 1
+fib1 n = fib1 (n - 1) + fib1 (n - 2)
+
+phi = (1 + sqrt 5) / 2
+phi' = (1 - sqrt 5) / 2
+fib2 n = round $ (1 / sqrt 5) * (phi^n + phi'^n)
+
+takeEvery n (x1:xs) = x1 : takeEvery n (drop (n-1) xs)
+takeEvery _ _ = []
+
+problem2 = sum $ takeEvery 3 $ map fib2 [3..33]
+
+-- problem 3
+
+factor k = help 2 k where
+  help :: Int -> Int -> [Int]
+  help p n =
+    if n == 1 -- p > n -- (ceiling $ sqrt $ fromIntegral k) + 1
+    then []
+    else if mod n p == 0
+         then let m = div n p
+              in p : help p m
+         else help (p+1) n
+
+problem3 = last $ factor 600851475143
+
+-- problem 4
+
+palindrome x = let xs = show x in
+  xs == reverse xs
+
+problem4 = last $ sort $ filter palindrome xs
+  where xs = [x*y | x<-[100..999], y <- [100..x]]
+
+-- problem 5
+
+nubN [] = [] -- not used
+nubN l = help 1 (head l) (tail l) where
+  help n a [] = [(n, a)]
+  help n a (x:xs) =
+    if (a == x)
+    then help (n+1) a xs
+    else (n, a) : help 1 x xs
+
+factorN = nubN . factor -- not used
+
+unite :: Ord a => [a] -> [a] -> [a]
+unite [] ys = ys
+unite xs [] = xs
+unite (x:xs) (y:ys) =
+  case compare x y of
+    EQ -> x : (unite xs ys)
+    LT -> x : (unite xs (y:ys))
+    GT -> y : (unite (x:xs) ys)
+
+lcmN = product . (foldl1 unite) . (map factor)
+
+problem5 = lcmN [1..20]
+
+-- problem6
+
+problem6 = (sum xs)^2 - (sum (map (^2) xs))
+  where xs = [1..100]
+
+-- problem7
+
+-- isPrime = (==1) . length . factor
+-- problem7naive = last $ (take 10001) $ filter isPrime [1..]
+-- prime 1 = 2
+-- prime n = help (prime (n-1) +1) where
+--   help k = if length (factor k) == 1
+--            then k
+--            else help (k+1)
+
+problem7 = (wheelSieve 101) !! 10000

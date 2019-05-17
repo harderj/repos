@@ -1,0 +1,29 @@
+
+-- Exercise 7.1
+
+data Tree a = Leaf a
+            | Branch (Tree a) (Tree a)
+
+foldrl :: (a -> b -> b) -> b -> (Tree a) -> b
+foldrl f x (Leaf a) = f a x
+foldrl f x (Branch t1 t2) = foldrl f (foldrl f x t1) t2
+
+foldlr :: (a -> b -> b) -> b -> (Tree a) -> b
+foldlr f x (Leaf a) = f a x
+foldlr f x (Branch t1 t2) = foldlr f (foldrl f x t2) t1
+
+fringe :: (Tree a) -> [a]
+fringe = foldlr (:) []
+
+treeSize :: (Tree a) -> Integer
+treeSize = foldlr (\x -> (1+)) 0
+
+foldup :: (b -> b -> b) -> b -> (Tree a) -> b
+foldup f x (Leaf a) = x
+foldup f x (Branch t1 t2) = f (foldup f x t1) (foldup f x t2)
+
+treeHeight = foldup (\x y -> 1 + max x y) 0
+
+testTree = Branch (Branch (Leaf 'a') (Leaf 'b')) (Leaf 'c')
+
+-- Exercise 7.2

@@ -1,0 +1,55 @@
+
+-- -- REMINDER: replace (..) with this when all is defined
+
+
+module Picture (Picture (Region, Over, EmptyPic),
+                Color (Black, Blue, Green, Cyan,
+                       Red, Magenta, Yellow, White),
+                regionToGRegion, shapeToGRegion,
+                drawRegionInWindow, drawPic, draw, spaceClose,
+                module Region
+               ) where
+
+import Draw
+import Region
+import SOE hiding (Region)
+import qualified SOE as G (Region)
+
+data Picture = Region Color Region
+             | Picture `Over` Picture
+             | EmptyPic
+             deriving Show
+
+drawRegionInWindow :: Window -> Color -> Region -> IO ()
+drawRegionInWindow w c r
+  = drawInWindow w
+      (withColor c
+         (drawRegion (regionToGRegion r)))
+
+drawPic :: Window -> Picture -> IO ()
+drawPic w EmptyPic = return ()
+drawPic w (pic1 `Over` pic2) = do drawPic w pic2; drawPic w pic1
+drawPic w (Region c r) = drawRegionInWindow w c r
+
+regionToGRegion :: Region -> G.Region
+regionToGRegion r = regToGReg (0,0) (1,1) r
+
+regToGReg :: Vector -> Vector -> Region -> G.Region
+type Vector = (Float, Float)
+regToGReg loc sca (Shape s)
+  = shapeToGRegion loc sca s
+regToGReg loc (sx, sy) (Scale (u, v) r)
+  = regToGReg loc (sx * u, sy * v) r
+regToGReg (lx, ly) sca (Translate (u, v) r)
+  = regToGReg (lx * u, ly * v) sca r
+regToGReg loc sca Empty
+  = createRectangle (0, 0) (0, 0)
+regToGReg loc sca (r1 `Union` r2)
+  = let gr1 = regToGReg loc sca r1
+        gr2 = regToGReg loc sca r2
+    in gr1 `orRegion` gr2
+
+
+shapeToGRegion :: Vector -> Vector -> Shape -> G.Region
+shapeToGRegion = error "ND"
+draw = error "ND"

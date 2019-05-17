@@ -1,0 +1,17 @@
+
+
+CHIP And16Way {
+    IN  
+        in[16];
+    OUT 
+        out;
+
+    PARTS:
+   // Put you code here:
+   And4Way (in=in[0..3], out=a);
+   And4Way (in=in[4..7], out=b);
+   And4Way (in=in[8..11], out=c);
+   And4Way (in=in[12..15], out=d);
+   And4Way (in[0]=a, in[1]=b, in[2]=c, in[3]=d, out=out);
+
+}

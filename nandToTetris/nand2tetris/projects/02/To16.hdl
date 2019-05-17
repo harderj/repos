@@ -1,0 +1,12 @@
+
+
+CHIP To16 {
+    IN  
+        in;
+    OUT 
+        out[16];
+
+    PARTS:
+   // Put you code here:
+   Mux16 (a=false, b=true, sel=in, out=out);
+}

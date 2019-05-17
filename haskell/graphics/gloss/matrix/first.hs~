@@ -1,0 +1,80 @@
+
+import Graphics.Gloss
+import Graphics.Gloss.Data.Picture as P
+import Numeric.Matrix as M hiding (map)
+--import Data.Complex
+
+main = do
+  bmp <- loadBMP "bird.bmp"
+  -- disp (Rotate 90 bmp)
+  rotatePic bmp
+
+rotatePic p = animate dis1 white (\t -> (Rotate (t * rad pi) p))
+
+proc1 = display dis1 white pic1
+
+proc2 = display dis1 blue pic2
+
+proc3 = display dis1 white pic3
+
+disp = display dis1 white
+
+dis1 = InWindow "Dis1" (500,500) (10,10)
+
+pic1 = Blank
+
+pic2 = color green $ ThickCircle 10 10
+
+path1 = [(-40,-40)
+        ,(-40,40)
+        ,(40,-40)] :: [(Float, Float)]
+
+pic3 = color red $ Polygon path1
+
+pic4 = Pictures [pic3
+                ,Translate (20) (-30) pic2]
+
+type Affine = Matrix Float
+
+(*.) :: Affine -> Point -> Point
+m *. (x, y) = (nx, ny) where
+  nx : ny : _ = concat $ toList prod
+  prod = m `times` (fromList [[x], [y], [0], [1]])
+
+pic5 = Pictures [pic3
+                ,color blue (Polygon (map (mat *.) path1))]
+  where mat = transM 100 (-50) 0
+
+--extractScale :: Matrix
+
+transM :: Float -> Float -> Float -> Affine
+transM x y z = fromList list
+  where list = [[1,0,0,x]
+               ,[0,1,0,y]
+               ,[0,0,1,z]
+               ,[0,0,0,1]]
+
+rotM :: Float -> Affine
+rotM x = fromList [[ cos x, sin x, 0, 0]
+                  ,[-sin x, cos x, 0, 0]
+                  ,[0,0,1,0]
+                  ,[0,0,0,1]]
+
+weightedAverageM :: MatrixElement a => [(Matrix a, a)] -> Matrix a
+weightedAverageM = sum . (map (\(m, k) -> k .* m))
+
+(.*) :: MatrixElement a => a -> Matrix a -> Matrix a
+k .* m = fromList modList
+  where list = toList m
+        modList = (map (map (*k))) list
+
+-- class Scalable a where
+--   (.*) :: Num a => a -> a -> a
+
+-- instance MatrixElement e => Scalable (Matrix e) where
+--   k .* m = (fromList . (map (map (*k))) . toList) m
+
+matrixMap f = fromList . (map (map f)) . toList
+
+deg = (*(pi/180)) :: Floating a => a -> a
+rad = (*(180/pi)) :: Floating a => a -> a

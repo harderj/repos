@@ -1,0 +1,13 @@
+
+
+CHIP Id16 {
+    IN  
+        in[16];
+    OUT 
+        out[16];
+
+    PARTS:
+   // Put you code here:
+   Not16 (in=in, out=temp);
+   Not16 (in=temp, out=out);
+}

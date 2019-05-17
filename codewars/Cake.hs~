@@ -1,0 +1,9 @@
+module Kata.Cut.Cake (cut) where
+
+import Data.Matrix
+
+cut :: String -> [String]
+cut cake = undefined
+
+parseCake :: String -> Matrix Bool
+parseCake = undefined

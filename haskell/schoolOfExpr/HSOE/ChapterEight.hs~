@@ -1,0 +1,90 @@
+import Data.Maybe
+import Region
+
+-- Exercise 8.1
+
+oneCircle = Shape (Ellipse 1 1)
+manyCircles = [Translate (x, 0) oneCircle | x <- [0,2..]]
+
+fiveCircles = take 5 manyCircles
+fiveCircles' = let m = intersectMany manyCircles
+                   r = Translate (-1,-1) (Shape (Rectangle 10 2))
+               in m `Intersect` r
+
+intersectMany :: [Region] -> Region
+intersectMany [] = Empty
+intersectMany (r:rs) = r `Intersect` (intersectMany rs)
+
+-- Exercise 8.2
+
+-- area' :: Shape -> Float
+-- area' (Rectangle s1 s2) = abs $ s1 * s2
+-- ... this is not really funny
+
+-- Exercise 8.3
+
+annulus :: Radius -> Radius -> Region
+annulus r1 r2 = Shape (Ellipse r1 r1) `difference` Shape (Ellipse r2 r2)
+
+r1 `difference` r2 = r1 `Intersect` (Complement r2)
+
+-- Exercise 8.4
+-- Now I'm redefining 'containsS' so that is actually work.
+
+-- data Vector2D a = Vect2 a a
+-- instance (Num a) => Num (Vector2D a) where
+--   Vect2 x y + Vect2 x' y' = Vect2 (x + x') (y + y')
+--   (*) _ _ = error "(*): not defined for Vector2D"
+--   abs _ = error "abs: not defined for Vector2D"
+--   signum _ = error "signum: not defined for Vector2D"
+--   fromInteger _ = error "fromInteger: not defined for Vector2D"
+
+type Vector = (Float, Float)
+-- type Coordinate = (Float, Float) -- already defined in Region.hs
+type Line = (Vector, Vector)
+type LineSeg = (Coordinate, Coordinate)
+type QMat2 = (Vector, Vector)
+
+
+add :: Vector -> Vector -> Vector
+(a, b) `add` (c, d) = (a + c, b + d)
+sub :: Vector -> Vector -> Vector
+(a, b) `sub` (c, d) = (a - c, b - d)
+dot :: Vector -> Vector -> Float
+(a, b) `dot` (c, d) = a * c + b * d
+scaleVector :: Float -> Vector -> Vector
+c `scaleVector` (a, b) = (a * c, b * c)
+scaleQMat2 :: Float -> QMat2 -> QMat2
+c `scaleQMat2` (v1, v2) = (c `scaleVector` v1,
+                           c `scaleVector` v2)
+invers :: QMat2 -> Maybe QMat2
+invers ((a, b), (c, d))
+  = let det = a * d - b * c
+    in if det == 0
+       then Nothing
+       else Just ((1 / det) `scaleQMat2` ((d, -b), (-c, a)))
+mult :: QMat2 -> Vector -> Vector
+((a, b), (c, d)) `mult` (x, y)
+  = (a * x + c * y,
+     b * x + d * y)
+
+intersection :: Line -> Line -> Coordinate
+intersection ((x1, y1), (x2, y2)) ((x3, y3), (x4, y4))
+  = let d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+        a = (x1 * y2 - y1 * x2)
+        x' = a * (x3 - x4) - (x1 - x2) * a
+        y' = a * (y3 - y4) - (y1 - y2) * a
+    in (1/d) `scaleVector` (x', y')
+
+-- crosses :: Line -> LineSeg -> Bool
+-- ((x1, y1), (x2, y2)) `crosses` ((sx1, sy1), (sx2, sy2))
+--   = let a = x2-x1
+
+-- intersection (p1, p2) (p'1, p'2)
+--   = let dp = p2 `sub` p1
+--         dp' = p'2 `sub` p'1
+--         m = (dp, (-1) `scaleVector` dp')
+--         m' = invers m
+--     in if isJust m'
+--        then Just ((fromJust m') `mult` (p1 `sub` p2))
+--        else Nothing

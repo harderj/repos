@@ -1,0 +1,46 @@
+\documentclass{article}
+
+% -- init.
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage[danish]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm} % proofs
+\usepackage{listings} % code examples
+\usepackage{graphicx}
+
+% theorems
+\theoremstyle{plain} % reset counter after each subsection
+\newtheorem{thm_sub}{Theorem}[subsection]
+\theoremstyle{definition} % kinds of theorems
+\newtheorem{paa}[thm_sub]{Påstand}
+
+% small hacks
+%\renewcommand{\thesubsection}{\thesection.\alph{subsection}} %letters for subsections
+
+% examples
+%\includegraphics[width=\textwidth]{/home/jacob/Desktop/hey.jpg}
+%\begin{paa}\label{sec:name} Hey \end{paa}
+
+% -- document
+
+\title{Noter}
+\author{Jacob Harder}
+%\date{19. feb. 2014}
+
+\begin{document}
+
+\maketitle
+
+\begin{thebibliography}{9}
+
+\bibitem{a}
+  Søren Eilers, Ernst Hansen og Tage Gutmann Madsen,
+  \emph{Indledende Matematisk Analyse}.
+  5. udgave.
+
+\end{thebibliography}
+
+\end{document}

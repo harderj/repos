@@ -1,0 +1,2 @@
+
+main = c <- readFile "prob022_names.txt"

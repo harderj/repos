@@ -1,0 +1,24 @@
+
+simple x y z = x * (y + z)
+
+
+-- Exercise 9.4
+
+applyEach [] v = []
+applyEach (f:fs) v = (f v) : applyEach fs v
+
+-- how to make this with high-order functions?
+
+-- Exercise 9.5
+
+applyAll [] v = v
+applyAll (f:fs) v = f $ applyAll fs v
+
+-- i can't make these higherorder...
+
+-- Exercise 9.6
+-- I don't know :(
+
+-- Exercise 9.7
+
+twice f = f . f

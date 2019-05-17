@@ -1,0 +1,190 @@
+module Botnakke where
+
+import System.IO
+--import Debug.Trace
+import Control.Concurrent
+import System.Timeout
+import qualified System.Random as R
+import qualified Data.Set as S
+import Data.List
+import Data.Array
+import Data.Function
+
+import GameState
+
+type Strategy = [Index] -> GameState -> R.StdGen -> Action
+
+findBestAction :: GameState -> Int -> IO Action
+findBestAction gs time = let
+  b = board gs
+  (Board arr) = b
+  in case legalIndices b of
+       [] -> return Pass
+       is -> do gen <- R.newStdGen
+                try <- tryStrategy time protStrat2 is gs gen
+                case try of
+                  Nothing ->
+                    do hPrint stderr "Strategy timed out! Moving randomly."
+                       return (randomMove is gen)
+                  Just a -> return a
+
+newStrat :: [Index] -> GameState -> IO Action
+newStrat idxs gs = undefined -- TODO
+  
+
+mapLimited :: Int -> (a -> b) -> [a] -> IO [b]
+mapLimited n f xs = undefined -- TODO
+  
+tryStrategy :: Int -> -- time given in miliseconds
+               Strategy ->
+               [Index] ->
+               GameState ->
+               R.StdGen -> IO (Maybe Action)
+tryStrategy time strategy idxs gs gen =
+  timeout ((timePerMove gs - 10)*1000)
+  $ return $! strategy idxs gs gen -- timeout works with microseconds
+
+protStrat3 :: Strategy
+protStrat3 idxs gs gen = undefined -- TODO
+
+protStrat1 :: Strategy
+protStrat1 idxs gs gen = let
+  b = board gs
+  riskFactor = 2 :: Int
+  sortFct (_, n) (_, m) = compare n m
+  sortedGrps = sortBy sortFct $ (grpsWFreedoms gs) :: [(StoneGroup, Int)]
+  endangeredGrps = takeWhile (\(_, n) -> n <= riskFactor) sortedGrps
+  potentialRescues = map findOptExt endangeredGrps :: [(Index, Int)]
+  findOptExt :: (StoneGroup, Int) -> (Index, Int)
+  findOptExt (g, n) = let
+    attackPts = neighbourhood b g
+    newFreedoms i = (-1) + (length $ filter (isFree b) (neighbours i))
+    wFreedoms = map (\p -> (p, newFreedoms p)) attackPts
+    fin = sortBy sortFct wFreedoms
+    in case fin of
+         [] -> (Idx 0 0,-1) -- none available
+         a:_ -> a
+  rescueFactor = 0 :: Int
+  rescues = dropWhile (\(_, n) -> n < rescueFactor) potentialRescues
+  in case rescues of
+       [] -> destroyEnemy idxs gs gen
+       (Idx x y,_):_ -> Place x y
+
+protStrat2 :: Strategy -- slow!
+protStrat2 idxs gs gen = let
+  b = board gs
+  c = myColor gs
+  nhbs = filter (myNeighbour gs) idxs
+  vi = vulnerabilityIndex b c
+  newBs = map (simulate b c) [Place x y | (Idx x y) <- nhbs]
+  vis = map (flip vulnerabilityIndex c) newBs
+  pts = sort $ flip zip [0..] $ map (flip (-) vi) vis
+  in if pts == [] || fst (head pts) > -2
+     then destroyEnemy idxs gs gen
+     else indexToAction (nhbs !! snd (head pts))
+
+janStrat :: Strategy
+janStrat idxs gs gen = let
+  b = board gs
+  (Board arr) = b
+  c = myColor gs
+  grps = getGroups b
+  myGrps = filter ((==Stone c) . (arr!) . (!!0)) grps
+  in undefined
+
+destroyEnemy :: Strategy
+destroyEnemy idxs gs gen =
+  let is = filter (nextToEnemy gs) idxs      
+  in if is == []
+     then randomMove idxs gen
+     else let is2 = case freedomStrategy is gs of
+                      [] -> is
+                      s -> s
+              (n, g) = randomIndex is2 gen
+              (Idx x y) = is2 !! n
+          in Place x y
+
+randomStrategy :: Strategy
+randomStrategy idxs gs gen = randomMove idxs gen
+
+randomMove :: [Index] -> R.StdGen -> Action
+randomMove idxs gen =
+  let (i, g) = randomIndex idxs gen
+      (Idx x y) = idxs !! i
+  in Place x y
+
+indexToAction :: Index -> Action
+indexToAction (Idx x y) = Place x y
+
+preserveSort :: Ord a => [a] -> [(a, Int)]
+preserveSort xs = let
+  ys = zip xs [0..]
+  in sortBy (\(a,_) (b,_) -> compare a b) ys
+
+myNeighbour :: GameState -> Index -> Bool
+myNeighbour gs i = neighbourOf (board gs) (myColor gs) i
+
+neighbourOf :: Board -> Color -> Index -> Bool
+neighbourOf (Board arr) c idx =
+  any (\i -> arr!i==Stone c) (neighbours idx)
+
+vulnerabilityIndex :: Board -> Color -> Int
+vulnerabilityIndex b c = let
+  grps = getGroupsOf b c
+  endangered = filter ((<3).snd) $ map (\g -> (length g, freedoms b g)) grps
+  in sum $ map (\(n,m) -> (n*10) `div` m) endangered
+
+grpsWFreedoms :: GameState -> [(StoneGroup, Int)]
+grpsWFreedoms gs =
+  let b = board gs
+  in map (\g -> (g, freedoms b g)) (getMyGroups gs)
+
+isFree (Board arr) i = (arr ! i) == Free
+
+randomIndex :: [a] -> R.StdGen -> (Int, R.StdGen)
+randomIndex xs gen = R.randomR (0, length xs - 1) gen
+
+freedomStrategy :: [Index] -> GameState -> [Index]
+freedomStrategy idxs gs =
+  let b = board gs
+      (Board arr) = b
+      enemyGrps = getEnemyGroups gs
+      sorted = sortBy (on compare (freedoms b)) enemyGrps
+      targets = dropWhile (not . (attackable b)) sorted
+  in if targets == []
+     then []
+     else neighbourhood b (targets !! 0)
+
+neighbourhood :: Board -> StoneGroup -> [Index]
+neighbourhood b idxs
+  = let nbs = nub $ concatMap neighbours idxs
+    in filter (legal b) nbs
+
+attackable :: Board -> [Index] -> Bool
+attackable idxs board = [] /= neighbourhood idxs board
+
+
+nextToEnemy :: GameState -> Index -> Bool
+nextToEnemy gs index
+  = let (Board arr) = board gs
+    in exists (\i -> arr ! i == Stone (enemyColor gs)) $ neighbours index
+
+enemyColor :: GameState -> Color
+enemyColor gs = case myColor gs of
+  White -> Black
+  Black -> White
+
+enemyStone :: GameState -> Point
+enemyStone gs = Stone (enemyColor gs)
+
+legalIndices :: Board -> [Index]
+legalIndices b = let (Board arr) = b
+                 in [i | i <- indices arr, legal b i]
+
+
+getEnemyGroups :: GameState -> [[Index]]
+getEnemyGroups gs = getGroupsOf (board gs) (enemyColor gs)
+
+getMyGroups :: GameState -> [[Index]]
+getMyGroups gs = getGroupsOf (board gs) (myColor gs)
+

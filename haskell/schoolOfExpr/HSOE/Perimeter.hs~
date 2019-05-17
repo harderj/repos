@@ -1,0 +1,7 @@
+module Perimeter (perimeter,
+                  module Shape
+                 ) where
+import Shape
+
+perimeter :: Shape -> Float
+perimeter = error "'perimeter' is not defined yet"

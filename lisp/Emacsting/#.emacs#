@@ -1,0 +1,72 @@
+;; emacs config. ;;
+;; 2013 oct. 26 ;;
+;; Jacob Harder ;;
+;; harderjacob@gmail.com ;;
+
+;; package handler
+(require 'package)
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/")
+	     '("melpa" . "http://melpa.milkbox.net/packages/"))
+(package-initialize)
+
+;; mosml
+(setq sml-program-name "/opt/local/bin/mosml"
+      sml-default-arg "-P full")
+
+;; anti-mac
+(setq mac-option-key-is-meta nil)
+(setq mac-command-key-is-meta t)
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier nil)
+
+;; cua-mode
+(cua-mode t)
+(setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
+(transient-mark-mode 1) ;; No region when it is not highlighted
+(setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
+
+;; turn off menu bars at startup
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+
+;; Highlight matching parentheses when cursor rests on them
+(show-paren-mode t)
+
+;; Add the column number to the info bar at the bottom
+(column-number-mode 1)
+
+;; Don't show splash screen
+(setq inhibit-startup-message t)
+
+;; Turn off audial beeping
+(setq visible-bell t)
+
+;; Keep 5 lines visible below cursor when scrolling
+(setq scroll-margin 5)
+
+;; When presented with yes/no questions, I want to be able to hit y/n instead
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Scroll one line at a time
+(setq scroll-conservatively 1) ;;1000000)
+
+;; scroll one line at a time (less "jumpy" than defaults)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+
+;; ---------- not tested if working ----------
+
+;; ---------- not working properly ----------
+
+;; color-theme
+(require 'color-theme)
+(color-theme-deep-blue)
+
+;; ---------- not working at all ----------
+
+;; Highlight characters beyond the 80th on each line.
+(require 'whitespace)
+(setq whitespace-line-column 80)

@@ -1,0 +1,6 @@
+
+
+import Data.Time.Calendar
+import Data.Time.Calendar.WeekDate
+
+fstJan1900 = fromWeekDate 1900 1 1

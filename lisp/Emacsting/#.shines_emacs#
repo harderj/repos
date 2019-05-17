@@ -1,0 +1,257 @@
+;; -------------- jacobs part ------------- ;;
+
+;;;; color_theme ;;;;
+
+;;(require 'color-theme);;
+;;(color-theme-initialize);;
+;;(color-theme-robin-hood);;
+
+;;;; mosml ;;;;
+
+(setq sml-program-name "/usr/local/bin/mosml"
+      sml-default-arg "-P full")
+
+;;;; anti-mac ;;;;
+
+(setq mac-option-key-is-meta nil)
+(setq mac-command-key-is-meta t)
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier nil)
+
+;;
+
+;; init.el -- Emacs initialization file
+;; Made 2011-12-21, revised 2013-03-16
+;; Simon Shine <shine@diku.dk>
+
+
+;;;;; Emacs 24 package management ;;;;;
+(require 'package)
+(add-to-list 'package-archives
+    '("marmalade" . "http://marmalade-repo.org/packages/")
+    '("melpa" . "http://melpa.milkbox.net/packages/"))
+(package-initialize)
+
+
+;;;;; Directories ;;;;;
+;; Define a config dir so I can refer to it later.
+(setq emacs-config-dir "~/.emacs.d")
+
+;; Put a backup copy of all files that are edited into ~/.emacs.d/backup/
+(add-to-list 'backup-directory-alist
+    (cons ".*" (concat emacs-config-dir "/backup")))
+
+;; Set the main font
+(set-default-font "Inconsolata-15")
+
+;;;;; Theme ;;;;;
+;; Cycle through this set of themes
+(setq my-themes '(solarized-dark solarized-light wombat))
+
+(setq my-cur-theme nil)
+(defun cycle-my-theme ()
+  "Cycle through a list of themes"
+  (interactive)
+  (when my-cur-theme
+    (disable-theme my-cur-theme)
+    (setq my-themes (append my-themes (list my-cur-theme))))
+  (setq my-cur-theme (pop my-themes))
+  (load-theme my-cur-theme t))
+
+;; Switch to the first theme in the list above
+(cycle-my-theme)
+
+;;;;; Settings ;;;;;
+;; Use ido-mode (enables completion of filenames in various situations)
+(ido-mode t)
+
+;; When opening files, try to ignore the following types of files
+(setq completion-ignored-extensions
+      '("~" "#"                     ; backup files
+        ".so" ".a" ".o" ".hi" ".la" ; compiled objects
+        ".aux" ".bbl" ".blg" ".idx" ; LaTeX garbage
+        ".git/" ".svn/" "CVS/"      ; version control data
+        ".class" ".pyc"))           ; bytecode formats
+
+;; Context-sensitive suggestions to which files to open with C-x C-f, etc.
+(require 'ffap)
+
+;; Don't show splash screen
+(setq inhibit-startup-message t)
+
+;; Turn off audial beeping
+(setq visible-bell t)
+
+;; Keep 5 lines visible below cursor when scrolling
+(setq scroll-margin 5)
+
+;; Scroll one line at a time
+(setq scroll-conservatively 1000000)
+
+;; When scrolling, keep the position in the buffer where it is
+(setq scroll-preserve-screen-position 1)
+
+;; Use spaces instead of tabs (unless modes override this setting)
+(setq-default indent-tabs-mode nil)
+
+;; When using M-q to format text paragraphs, use an 80 character margin
+(setq-default fill-column 80)
+
+;; Don't break up star-dotted lists when formatting text paragraphs
+;; This is useful when writing ASCII-based lists, e.g. in org-mode
+(setq paragraph-start "\\*\\|$")
+(setq paragraph-separate "$")
+
+;; Turn off Emacs'es weird way of marking things when I'm not highlighting it
+(transient-mark-mode 1)
+
+;; When presented with yes/no questions, I want to be able to hit y/n instead
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Highlight matching parentheses when cursor rests on them
+(show-paren-mode t)
+
+;; Add the column number to the info bar at the bottom
+(column-number-mode 1)
+
+;; Turn off graphical menu bar and tool bar (icons for saving, opening, etc.)
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+
+;; Put scroll bar on the right side
+(set-scroll-bar-mode 'right)
+
+;; Word-count mode: Add a status bar item.  Use: M-x wc-mode
+(require 'wc-mode)
+(setq wc-modeline-format "[%tw words, %tl lines, %tc chars]")
+
+;; Highlight characters beyond the 100th on each line.
+(require 'whitespace)
+(setq whitespace-line-column 100)
+
+;; Highlight long lines and trailing whitespace
+(setq whitespace-style '(face lines-tail trailing))
+(add-hook 'prog-mode-hook 'whitespace-mode)
+
+
+;;;;; Common Lisp ;;;;;
+(require 'cl)
+
+(load (expand-file-name "~/quicklisp/slime-helper.el"))
+;; Replace "sbcl" with the path to your implementation
+(setq inferior-lisp-program "sbcl")
+
+(setq slime-net-coding-system 'utf-8-unix)
+
+;; Remember the most recent position in a file when it is re-opened
+(require 'saveplace)
+(setq-default save-place t)
+
+
+;;;;; Keybindings ;;;;;
+(defun kb (k) (read-kbd-macro k))
+(dolist (pair
+  '(("C-z"         undo)
+    ("C-k"         kill-whole-line)
+    ("M-c"         comment-region)
+    ("M-u"         uncomment-region)
+    ("C-<return>"  mark-paragraph)
+    ("C-n"         dabbrev-expand)
+    ("C-x C-g"     goto-line)
+
+    ("C-+"         text-scale-increase)
+    ("C--"         text-scale-decrease)
+    ("C-t"         cycle-my-theme)
+
+    ("C-x <up>"    previous-multiframe-window)
+    ("C-x <down>"  next-multiframe-window)
+    ("C-<tab>"     next-multiframe-window)
+
+    ("C-S-c C-S-c" mc/edit-lines)
+    ("C->"         mc/mark-next-like-this)
+    ("C-<"         mc/mark-previous-like-this)
+    ("C-S-c C-S-s" mc/mark-all-like-this)
+
+    ("C-x a a"     absalon-html-escape-code)
+    ("C-x a q"     absalon-html-error-comment)
+    ))
+  (global-set-key (kb (car pair)) (cadr pair)))
+
+
+;;;;; Display ;;;;;
+(add-hook 'window-configuration-change-hook
+  (lambda ()
+    (setq frame-title-format
+      (concat invocation-name " : "
+        (replace-regexp-in-string
+          (concat "/home/" user-login-name) "~"
+          (or buffer-file-name "%b"))))))
+
+
+;;;;; Configuration for various modes and extensions ;;;;;
+; sml-mode
+(require 'sml-mode)
+(add-hook 'sml-mode-hook
+  (lambda ()
+    (setq sml-program-name "mosml"
+          sml-default-arg "-P full"
+          sml-indent-level 2
+          words-include-escape t
+          indent-tabs-mode nil)))
+
+; When executing SML files, save it first
+(defadvice sml-send-buffer
+  (around save-window activate)
+  (save-selected-window ad-do-it))
+
+
+; Haskell
+(require 'haskell-mode)
+(require 'inf-haskell)
+(require 'haskell-indentation)
+(require 'ghci-completion)
+
+; Add Haskell programs to execution path
+(add-to-list 'exec-path "~/.cabal/bin")
+(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+(add-hook 'haskell-mode-hook (lambda () (haskell-indentation-mode 1)))
+(add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion)
+
+; Erlang mode -- currently disabled
+;; (setq load-path (cons  "/usr/lib/erlang/lib/tools-2.6.7/emacs" load-path))
+;; (setq erlang-root-dir "/usr/lib/erlang")
+;; (setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+;; (require 'erlang-start)
+(setq auto-mode-alist
+  (cons (cons "\\.erl$" 'erlang-mode)
+    auto-mode-alist))
+
+; Prolog
+(setq auto-mode-alist
+  (cons (cons "\\.pl$" 'prolog-mode)
+     auto-mode-alist))
+
+; Use SWI Prolog rather than GNU Prolog
+(setq prolog-system 'swi)
+
+; Markdown
+(setq auto-mode-alist
+  (cons (cons "\\.md$" 'markdown-mode)
+    auto-mode-alist))
+
+;; Some random stuff I don't know how ended up in my config...
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes (quote ("fc5fcb6f1f1c1bc01305694c59a1a861b008c534cae8d0e48e4d5e81ad718bc6" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" default))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+

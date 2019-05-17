@@ -1,0 +1,49 @@
+
+import Data.Numbers.Primes
+
+ds n = help $ primeFactors n where
+  help [] = []
+  help (x:xs) = x : ((map (*x) xs) ++ help xs)
+
+
+lim = 28123
+--lim = 200
+
+(\\) :: Int -> Int -> Bool
+n \\ m = 0 == mod m n
+
+d :: Int -> Int
+d = sum . probDivs
+
+phi = sum . divs
+
+divs n = filter (\\ n) [1..n]
+
+probDivs :: Int -> [Int]
+probDivs n = filter (\\ n) [1..n-1]
+
+perfect n = n == d n
+
+perfects = filter perfect [1..lim]
+
+nonabund = not . abundant
+
+abundant n = if n < 12 then False
+             else n < d n
+abundants = filter abundant [1..lim]
+
+sumOfTwoAbundants n = help 12 (n-12) where
+  help n m = if abundant n && abundant m
+             then True
+             else if n > m
+                  then False
+                  else help (n+1) (m-1)
+
+solution1 = sum $ filter (not . sumOfTwoAbundants) [1..28123]
+
+main = do print solution1
+
+-- .. not done
+
+
+

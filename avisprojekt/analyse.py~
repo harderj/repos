@@ -1,0 +1,11 @@
+
+import nltk
+# import pandas as pd
+import io
+
+f = io.open('eb_small.csv', 'r', encoding='utf8')
+raw = f.read()
+tokens = nltk.word_tokenize(raw)
+text = nltk.Text(tokens)
+
+fdist = nltk.FreqDist(text)

@@ -1,0 +1,10 @@
+
+
+(\\) :: Int -> Int -> Bool
+n \\ m = 0 == mod m n
+d = sum . probDiv
+
+amicable :: Int -> Int -> Bool
+amicable n m = d n == m && d m == n
+
+aList = [(n,m) | n <- [1..10000], m <- [1..n], n /= m, amicable n m]

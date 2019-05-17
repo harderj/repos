@@ -1,0 +1,108 @@
+module Haskell.Codewars.MorseDecoder where 
+--import Haskell.Codewars.MorseDecoder.Preloaded (morseCode)
+import Data.Maybe
+import Data.List
+import Data.Char
+import Control.Monad (msum)
+import qualified Data.Text as T
+
+decode = decodeMorse . decodeBitsAdvanced
+
+decodeBitsAdvanced :: String -> String
+decodeBitsAdvanced str = let
+  crpd = crop '0' str
+  grps = group crpd
+  (n, m, k) = analyseBits grps
+  in concatMap (binToMorse n m) grps
+
+decodeMorse :: String -> String
+decodeMorse str = let
+  grps = groupBy (\a b -> (a == ' ' && b == ' ') || (a /= ' ' && b /= ' ')) str
+  in concatMap ((map toUpper) . morseToStr) grps
+
+analyseBits' grps = let
+  srt = sort $ map length grps
+  len = fromIntegral $ length grps - 1
+  thresholdLow = floor $ len * 0.6
+  thresholdHigh = floor $ len * 0.8
+  in 
+
+analyseBits grps = let
+  defaultOnes = [1,1,1,2,2,2,2,4,4,5,5]
+  defaultZeros = [1,1,1,2,2,2,2,2,5,6,9]
+  ones = sort $ defaultOnes ++ (map length $ filter ((=='1') . head) grps)
+  zeros = sort $ defaultZeros ++ (map length $ filter ((=='0') . head) grps)
+  len1 = fromIntegral $ length ones
+  len0 = fromIntegral $ length zeros
+  threshold1 = ceiling $ len1 * 0.5
+  threshold0low = ceiling $ len0 * 0.6
+  threshold0high = ceiling $ len0 * 0.9
+  in (zeros !! (threshold0low - 1),
+      zeros !! (threshold0high - 1),
+      ones !! (threshold1 - 1))
+
+analyseBits_ grps = let
+  defaultOnes = [1,1,2,2,2,4,4,5,5]
+  defaultZeros = [1,2,2,3,5,6,9]
+  ones = sort $ defaultOnes ++ (map length $ filter ((=='1') . head) grps)
+  zeros = sort $ defaultZeros ++ (map length $ filter ((=='0') . head) grps)
+  len1 = fromIntegral $ length ones
+  len0 = fromIntegral $ length zeros
+  threshold1 = ceiling $ len1 * 0.6
+  threshold0low = ceiling $ len0 * 0.5
+  threshold0high = ceiling $ len0 * 0.8
+  in sequence_ [print (len0, len1),
+                print (threshold1 - 1),
+                print (threshold0low - 1),
+                print (threshold0high - 1),
+                print ones,
+                print zeros]
+
+
+average xs = sum xs / fromIntegral (length xs)
+  
+binToMorse :: Int -> Int -> Int -> String -> String
+binToMorse n m (c:str)
+  | c == '0' && length str < n = ""
+  | c == '0' && length str < m = " "
+  | c == '0' = "   "
+  | c == '1' && length str < n = "."
+  | c == '1' = "-"
+  | otherwise = ""
+
+crop c str = let one = dropWhile (==c) $ reverse str
+  in dropWhile (==c) $ reverse one
+
+morseToStr :: String -> String
+morseToStr str = case str of
+  "   " -> " "
+  " " -> ""
+  ".-" -> "a"
+  "-..." -> "b"
+  "-.-." -> "c"
+  "-.." -> "d"
+  "." -> "e"
+  "..-." -> "f"
+  "--." -> "g"
+  "...." -> "h"
+  ".." -> "i"
+  ".---" -> "j"
+  "-.-" -> "k"
+  ".-.." -> "l"
+  "--" -> "m"
+  "-." -> "n"
+  "---" -> "o"
+  ".--." -> "p"
+  "--.-" -> "q"
+  ".-." -> "r"
+  "..." -> "s"
+  "-" -> "t"
+  "..-" -> "u"
+  "...-" -> "v"
+  ".--" -> "w"
+  "-..-" -> "x"
+  "-.--" -> "y"
+  "--.." -> "z"
+  _ -> ""
+
+testString = "0000000011011010011100000110000001111110100111110011111100000000000111011111111011111011111000000101100011111100000111110011101100000100000"

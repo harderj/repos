@@ -1,0 +1,14 @@
+Ninety-Nine Haskell Problems
+http://www.haskell.org/haskellwiki/H-99:_Ninety-Nine_Haskell_Problems
+begun 17. nov 2013
+before 26. oct 2014, solved 1-12, 14-24, 31-34
+26. oct. 2014 12:00-14:00, solved 35-41
+22. feb. 2015 21.00-02.00, solved 46, 48-50, 55-58
+10. may  2017 10.00-13.00, solved 25, 26, 28
+14. may  2017, solved 59, 61-63
+
+not done yet: 59-99
+non-existent: 29-30, 51-54
+too confusing: 13, 47, 50
+cheated: 27
+too slow solution: 60

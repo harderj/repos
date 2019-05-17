@@ -1,0 +1,329 @@
+
+import System.IO
+import Data.Maybe
+import Data.List
+
+-- main
+
+
+main :: IO ()
+main = do s <- loop emptyGameState
+          return ()
+
+loop :: GameState -> IO String
+loop (h, s)  =
+  do eof <- hIsEOF stdin
+     line <- getLine
+     if eof || line == "exit"
+       then return (showHistory h)
+       else do let newH = line : h
+                   wds = words line
+                   a = answer s wds
+                   newS = makeSetting s wds
+               case a of
+                 Nothing
+                   -> do putStrLn "No moves"
+                         loop (newH, newS)
+                 Just str
+                   -> do putStrLn str
+                         loop (str:newH, newS)
+
+-- this is the fun part
+
+type Attack = (Int, Int, Int)
+
+attackTransfer :: State -> Maybe String
+attackTransfer s
+  = Just (unwords $ (myName gi)
+          : "attack/transfer"
+          : (map showAttack attacks)
+         )
+    where showAttack :: Attack -> String
+          showAttack (src, tar, n)
+            = unwords [show src, show tar, show n]
+          attacks = findAttacks s
+          (rN, aN, m, gi) = s
+
+findAttacks :: State -> [Attack]
+findAttacks (_, _, m, gi)
+  = let myRegIds = territory m (Player (myName gi)) :: [Int]
+        myRegs = catMaybes $ map (getRegion m) myRegIds :: [Region]
+        myStrongRegs = filter strong myRegs :: [Region]
+        whichNeighbor :: Region -> Maybe Attack
+        whichNeighbor r
+          = let nGIds = gGetNeighbors m gId :: [Int]
+                rId = rGetId r :: Int
+                gId = fromMaybe (-1) $ toGraphId m rId :: Int
+                ns = catMaybes $ map (gGet m) nGIds :: [Region]
+                target = listToMaybe ns :: Maybe Region
+                force = (fromJust $ rGetArmies r) - 1 :: Int
+            in case target of
+              Nothing -> Nothing
+              Just tar -> Just (rId, rGetId tar, force)
+    in catMaybes $ map whichNeighbor myStrongRegs
+
+strong :: Region -> Bool
+strong (_, _, Just (_, n)) = n > 1
+strong _ = False
+
+pickStartingRegions :: State -> Maybe String
+pickStartingRegions _ = Just "give me randomly"
+
+placeArmies :: State -> Maybe String
+placeArmies s
+    = Just (unwords $ (myName gi)
+            : "place_armies"
+            : (show r)
+            : [(show n)]
+           )
+      where r = bestRegion s
+            (_, n, m, gi) = s
+
+bestRegion :: State -> Int
+bestRegion (_, _, m, gi)
+    = head $ territory m $ Player (myName gi)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- this is just utility
+
+pureHans :: PureBot
+pureHans (line, (hist, s)) = (a, (a:line:hist, newS))
+    where wds = words line
+          a = fromMaybe "roger that" (answer s wds)
+          newS = makeSetting s wds
+
+answer :: State -> [String] -> Maybe String
+answer s input
+    = case input of
+        "pick_starting_region":t:_
+            -> pickStartingRegions s
+        "go":"place_armies":[t]
+            -> placeArmies s
+        "go":"attack/transfer":[t]
+            -> attackTransfer s
+        _ -> Nothing
+
+makeSetting :: State -> [String] -> State
+makeSetting s input
+    = case input of
+        "settings":"your_bot":[name]
+          -> setOwnName s name
+        "settings":"opponent_bot":[name]
+          -> setOpponentName s name
+        "update_map":wds
+          -> updateMap s wds
+        "setup_map":"super_regions":wds
+          -> setupSuperRegions s wds
+        "setup_map":"regions":wds
+          -> setupRegions s wds
+        "setup_map":"neighbors":wds
+          -> setupNeighbors s wds
+        "settings":"starting_armies":wd:wds
+          -> updArmies s wd
+        _ -> s
+
+updArmies :: State -> String -> State
+updArmies (n, a, m, g) s = (n, read s, m, g)
+
+setOwnName :: State -> String -> State
+setOwnName (round, armies, map, (you, him, sRegs, pick, sr)) name
+    = (round, armies, map, (name, him, sRegs, pick, sr))
+
+setOpponentName :: State -> String -> State
+setOpponentName (round, armies, map, (you, him, sRegs, pick, sr)) name
+    = (round, armies, map, (you, name, sRegs, pick, sr))
+
+updateMap :: State -> [String] -> State
+updateMap (rN, aN, m, (y, h, sRs, pN, sr)) (w1:w2:w3:ws)
+    = (rN, aN, um m (read w1) ow (read w3), (y, h, sRs, pN, sr))
+      where ow = case w2 of "neutral" -> Neutral
+                            name -> Player name
+            um :: Map -> Int -> Ownership -> Int -> Map
+            um m id own a
+                = gReplace m gID newR
+                  where gID = fromMaybe (-1) (gFind m oldR)
+                        oldR = fromJust $ getRegion m id
+                        (_, sr, _) = oldR
+                        newR = (id, sr, Just (own, a))
+updateMap s _ = s
+
+setupSuperRegions :: State -> [String] -> State
+setupSuperRegions s (w1:w2:ws)
+    = (rN, aN, m, newGi)
+    where (rN, aN, m, oldGi) = s :: State
+          (y, h, sRegs, sPick, oldSrs) = oldGi :: GameInfo
+          newSr = (read w1, read w2):oldSrs :: [SuperRegion]
+          newGi = (y, h, sRegs, sPick, newSr) 
+
+setupRegions :: State -> [String] -> State
+setupRegions (rN, aN, m, gi) (w1:w2:ws)
+    = (rN, aN, h m (read w1) (read w2), gi)
+      where h :: Map -> Int -> Int -> Map
+            h m id sId = gAdd m (id, sId, Nothing)
+setupRegions s _ = s
+
+setupNeighbors :: State -> [String] -> State
+setupNeighbors s (w1:w2:ws)
+    = let thisId = read w1 :: Int
+          linkedIds = (map read) $ wordsBy ',' w2 :: [Int]
+          f :: Int -> Map -> Map
+          f n m = makeNeighbor m thisId n
+          newMap = foldr f oldMap linkedIds :: Map
+          (r, a, oldMap, g) = s :: State
+      in (r, a, newMap, g)
+
+wordsBy :: Eq a => a -> [a] -> [[a]]
+wordsBy e xs = map (filter (/= e)) $ (groupBy (\x y -> e /= y)) xs
+
+myName :: GameInfo -> String
+myName (name, _, _, _, _) = name
+
+
+---- even more utility
+
+type Bot = IO ()
+type PureBot = (String, GameState) -> (String, GameState)
+type History = [String]
+data Ownership = Player String | Neutral
+                 deriving (Show, Eq)
+-- Region ~ (ID, owner, 'if known' (#armies, superRegion))
+type Region = (Int, Int, Maybe (Ownership, Int))
+type SuperRegion = (Int, Int)
+type Map = UGraph Region
+-- GameInfo ~ (yourName, opp.Name, startRegs, pickAmount, superRegs)
+type GameInfo = (String, String, [Int], Int, [SuperRegion])
+-- State ~ (round#, #armies, map, gameinfo)
+type State = (Int, Int, Map, GameInfo)
+type GameState = (History, State)
+
+emptyBot = return () :: Bot
+emptyPureBot :: PureBot
+emptyPureBot _ = ("", emptyGameState)
+emptyMap = emptyGraph :: Map
+emptyState = (0, 0, emptyGraph, ("","",[],0,[])) :: State
+emptyGameState = ([], emptyState) :: GameState
+emptyRegion = (0,0,Nothing) :: Region
+
+rGetArmies :: Region -> Maybe Int
+rGetArmies (_, _, info) = case info of
+  Nothing -> Nothing
+  Just (_, n) -> Just n
+
+toRegionId :: Map -> Int -> Maybe Int
+toRegionId m gId
+  = let r = gGet m gId
+    in case r of
+      Nothing -> Nothing
+      Just (rId, _, _) -> Just rId
+
+showHistory :: History -> String
+showHistory = unlines . reverse
+
+makeNeighbor :: Map -> Int -> Int -> Map
+makeNeighbor m rID rID'
+    = case (eID, eID') of
+        (Just id, Just id') -> gAddE m id id' ()
+        _ -> m
+    where eID = toGraphId m rID
+          eID' = toGraphId m rID'
+
+toGraphId :: Map -> Int -> Maybe Int
+toGraphId m n = gFind m reg
+    where potentialRegion = getRegion m n :: Maybe Region
+          reg = fromMaybe emptyRegion potentialRegion :: Region
+
+rGetId :: Region -> Int
+rGetId (n, _, _) = n
+
+getRegion :: Map -> Int -> Maybe Region
+getRegion m id
+    = let one = gFilter ((==id) . rGetId) m :: Map
+          two = listToMaybe $ map snd $ fst one :: Maybe Region
+      in two
+
+territory :: Map -> Ownership -> [Int]
+territory m owner
+    = map rGetId (toList $ gFilter f m)
+      where f :: Region -> Bool
+            f (_, _, Just (own, _)) = own == owner
+            f _ = False
+
+type Graph a b = ([Vertex a], [(Int, Int, b)])
+type Vertex a = (Int, a)
+type Edge a = (Int, Int, a)
+type UGraph a = Graph a ()
+
+emptyGraph = ([],[]) :: Graph a b
+
+gGet :: Graph a b -> Int -> Maybe a
+gGet g id = listToMaybe
+            $ map unVertex
+            $ filter (\(n, _) -> n == id)
+            $ fst g
+
+gGetNeighbors :: Graph a b -> Int -> [Int]
+gGetNeighbors g id
+  = filter (gNeighbor g id) ids
+  where (vs, es) = g
+        ids = map gVertexId vs
+
+gNeighbor :: Graph a b -> Int -> Int -> Bool
+gNeighbor (vs, es) id id'
+  = (&&) (id /= id')
+    $ not $ null
+    $ filter (gInEdge id) (filter (gInEdge id') es)
+
+gInEdge :: Int -> Edge b -> Bool
+gInEdge id (s, t, _) = id == s || id == t
+
+gVertexId :: Vertex a -> Int
+gVertexId = fst
+
+gFind :: Eq a => Graph a b -> a -> Maybe Int
+gFind g x = fmap fst ((listToMaybe . fst . (gFilter (==x))) g)
+
+gReplace :: Graph a b -> Int -> a -> Graph a b
+gReplace (vs, es) id x = (h vs id x, es)
+    where h [] _ _ = []
+          h ((id', y):vs') id x
+              = if id == id'
+                then (id, x):vs'
+                else (id', y):(h vs' id x)
+
+gAdd :: Graph a b -> a -> Graph a b
+gAdd (vs, es) x = ((freshID,x):vs, es)
+    where freshID = fromMaybe 1 first :: Int
+          first = listToMaybe filtered :: Maybe Int
+          filtered = filter (not . ((flip elem) ids)) [1..] :: [Int]
+          ids = (map fst vs) :: [Int]
+
+-- 'clean' meaning remove edges that are meaningless
+gClean :: Graph a b -> Graph a b
+gClean (vs, es) = (vs, filter f es)
+    where f (v1, v2, _) = elem v1 ids && elem v2 ids
+          ids = map fst vs
+
+gFilter :: (a -> Bool) -> Graph a b -> Graph a b
+gFilter f (vs, es) = gClean (newVs, es)
+    where newVs = filter (f . snd) vs
+
+unVertex :: Vertex a -> a
+unVertex (_, x) = x
+
+toList :: Graph a b -> [a]
+toList (vs, _) = map unVertex vs
+
+gAddE :: Graph a b -> Int -> Int -> b -> Graph a b
+gAddE (vs, es) id id' x = (vs, (id, id', x) : es)

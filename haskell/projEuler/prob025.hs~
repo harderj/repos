@@ -1,0 +1,11 @@
+
+
+fibSlow 0 = 1
+fibSlow 1 = 1
+fibSlow n = fibSlow (n-1) + fibSlow (n-2)
+
+fibFast n = invSqrt5 * (phi^n - psi^n)
+  where sqrt5 = sqrt 5
+        invSqrt5 = 1 / sqrt5
+        phi = (1 + sqrt5) / 2
+        psi = (1 - sqrt5) / 2

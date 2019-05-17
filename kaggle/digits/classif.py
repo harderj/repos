@@ -1,0 +1,30 @@
+b
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt, matplotlib.image as mpimg
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+
+n = 42000 # 42000 max
+labeled_images = pd.read_csv('train.csv')
+images = labeled_images.iloc[0:n,1:]
+labels = labeled_images.iloc[0:n,:1]
+train_images, test_images, train_labels, test_labels = train_test_split(images, labels, train_size=0.8, random_state=0)
+
+train_images[train_images>0]=1
+test_images[test_images>0]=1
+
+clf = svm.SVC()
+clf.fit(train_images, train_labels.values.ravel())
+
+n = 28000 # 28000 max
+images_pred = pd.read_csv('test.csv')
+images_pred = images_pred.iloc[0:n,0:]
+images_pred[images_pred>0]=1
+labels_pred = clf.predict(images_pred)
+index_col = np.array(range(1,n+1))
+mat = np.matrix([index_col, labels_pred])
+mat = mat.T
+df = pd.DataFrame(mat)
+df.columns = ['ImageId', 'Label']
+df.to_csv('pred.csv', index=False)

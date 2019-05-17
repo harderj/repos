@@ -1,0 +1,10 @@
+module Homography where
+
+import Graphics.Gloss
+
+import Numeric.Matrix
+
+type Camera = Matrix Double
+
+render3d :: Camera -> Picture
+render3d = undefined

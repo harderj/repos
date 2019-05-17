@@ -1,0 +1,19 @@
+{
+  "wrapper": {
+    "timebankMax": 10000,
+    "timePerMove": 200,
+    "maxTimeouts": 0,
+    "resultFile": "./resultfile.json",
+    "debug": true
+  },
+  "match": {
+    "bots": [{
+      "command": "/home/jacob/Dropbox/code/aigames/go/Main"
+    },{
+      "command": "java -cp /home/jacob/Dropbox/code/aigames/go/starterbot bot.BotStarter"
+    }],
+    "engine": {
+	"command": "java -jar /home/jacob/Dropbox/code/aigames/go/go-engine-1.0.1/build/libs/go-engine-1.0.1.jar"
+    }
+  }
+}

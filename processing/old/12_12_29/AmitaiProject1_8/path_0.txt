@@ -1,0 +1,101 @@
+turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 4 steps and turn left 45 degrees
+take 2 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 2 steps and turn left 45 degrees
+take 3 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 2 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 3 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 2 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 3 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 2 steps and turn right 45 degrees
+take 2 steps and turn right 45 degrees
+take 3 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 2 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 2 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 2 steps and turn left 45 degrees
+take 2 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+take 2 steps and turn right 45 degrees
+take 2 steps and turn left 45 degrees
+take 4 steps and turn right 45 degrees
+take 4 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 2 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn right 45 degrees
+take 1 steps and turn left 45 degrees
+take 1 steps and turn left 45 degrees
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null

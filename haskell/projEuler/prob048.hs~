@@ -1,0 +1,2 @@
+
+selfPowers n = product [m * m | m <- [1..n]]

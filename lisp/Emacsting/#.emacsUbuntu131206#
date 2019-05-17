@@ -1,0 +1,72 @@
+;; emacs init file
+;; jacob harder
+;; ubuntu
+
+;; package handler
+(require 'package)
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/")
+	     '("melpa" . "http://melpa.milkbox.net/packages/"))
+(package-initialize)
+
+;; cua-mode
+(cua-mode t)
+(setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
+(transient-mark-mode 1) ;; No region when it is not highlighted
+(setq cua-keep-region-after-copy t) ;; Standard Windows behaviour
+
+;; turn off menu bars at startup
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+
+;; scroll bar mode
+(scroll-bar-mode 0)
+
+;; color theme
+(require 'color-theme)
+(color-theme-gray30)
+
+;; Don't show splash screen
+(setq inhibit-startup-message t)
+
+;; Keep 5 lines visible below cursor when scrolling
+(setq scroll-margin 5)
+
+;; Scroll one line at a time
+(setq scroll-conservatively 1000000)
+
+;; When scrolling, keep the position in the buffer where it is
+(setq scroll-preserve-screen-position 1)
+
+;; Highlight matching parentheses when cursor rests on them
+(show-paren-mode t)
+
+;; Add the column number to the info bar at the bottom
+(column-number-mode 1)
+
+;; -- not sure if working --
+
+;; pdf-latex
+(setq tex-pdf-mode t)
+
+(add-to-list 'load-path "~/.emacs.d/jdee-2.4.1/lisp")
+(load "jde")
+
+; Haskell
+(require 'haskell-mode)
+(load "/usr/share/emacs/site-lisp/haskell-mode/haskell-site-file")
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
+
+;(require 'inf-haskell)
+;;(require 'haskell-indentation)
+;;(require 'ghci-completion)
+
+; Add Haskell programs to execution path
+;;(add-to-list 'exec-path "~/.cabal/bin")
+;;(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+;;(add-hook 'haskell-mode-hook (lambda () (haskell-indentation-mode 1)))
+;;(add-hook 'inferior-haskell-mode-hook 'turn-on-ghci-completion)

@@ -1,0 +1,11 @@
+module Draw (inchToPixel,
+             pixelToInch,
+             intToFloat,
+             xWin, yWin,
+             trans,
+             shapeToGraphic,
+             spaceClose) where
+
+import Shape
+import SOEGraphics
+

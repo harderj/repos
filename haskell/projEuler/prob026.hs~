@@ -1,0 +1,7 @@
+
+import OpenTheory.Primitive.Natural
+import qualified OpenTheory.Number.Natural.Prime as P
+
+ps = takeWhile (<1000) P.all
+
+last ps

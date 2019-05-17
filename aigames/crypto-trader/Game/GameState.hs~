@@ -1,0 +1,32 @@
+module Game
+.GameState where
+
+data GameState = GameState {
+  timeBank :: Int,
+  timePerMove :: Int,
+  candleInterval :: Int,
+  candlesTotal :: Int,
+  candlesGiven :: Int,
+  initialStack :: Int,
+  transactionFee :: Float,
+  nextCandles :: [Candle],
+  stacks :: [(String, Float)]
+  } deriving Show
+
+data Candle = Candle {
+  pair :: Pair,
+  date :: Int,
+  high :: Float,
+  low :: Float,
+  open :: Float,
+  close :: Float,
+  volumne :: Float
+  } deriving Show
+
+data Pair = Pair (String, String)
+  deriving Show
+
+data Order = Pass
+           | Buy Pair Float
+           | Sell Pair Float
+  deriving Show

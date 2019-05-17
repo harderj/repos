@@ -1,0 +1,7 @@
+
+findSum _ [] = 0
+findSum n (x:xs) = case compare 0 n of
+  LT -> findSum (n-x) xs + findSum n xs
+  EQ -> 1
+  GT -> 0
+
